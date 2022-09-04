@@ -10,8 +10,8 @@ BG= (40, 55, 71 )
 
 #Some setting like the width and height of the window, the amount of tiles etc
 
-WIDTH= 1100
-HEIGHT = 641
+WIDTH= 385
+HEIGHT = 385
 FPS = 60
 TITLE = "Rompecabezas numerico"
 TILESIZE = 128
