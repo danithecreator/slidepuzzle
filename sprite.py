@@ -5,6 +5,7 @@ from settings import *
 
 pg.font.init()
 
+#Se encarga de crear las casillas
 class Tile(pg.sprite.Sprite):
     def __init__(self, puzzle,x,y,text) :
        self.groups = puzzle.all_sprites
@@ -26,6 +27,7 @@ class Tile(pg.sprite.Sprite):
        else:
             self.image.fill(GRID)
 
+#Realiza los diferentes movimientos
     def update(self):
         self.rect.x = self.x * TILESIZE
         self.rect.y = self.y * TILESIZE
@@ -34,7 +36,6 @@ class Tile(pg.sprite.Sprite):
         return self.rect.left <= mouse_x <= self.rect.right and self.rect.top <= mouse_y <= self.rect.bottom
 
     def right(self):
-        print(self.rect.x +TILESIZE )
         return self.rect.x +TILESIZE < GAME_SIZE*TILESIZE
     
     def left(self):

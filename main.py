@@ -3,14 +3,18 @@ import random as rdm
 import time as tm
 from sprite import *
 from settings import *
-
+white = (255, 255, 255)
+green = (0, 255, 0)
+blue = (0, 0, 128)
 class Puzzle:
+    #Inicia la pantalla
     def __init__(self):
         pg.init()
         self.screen =pg.display.set_mode((WIDTH,HEIGHT))
         pg.display.set_caption(TITLE) 
         self.clock = pg.time.Clock()
 
+    #Crea el grid con los numeros aleatorios
     def create_game(self):
         grid = []
         initialNumbers=self.create_random_numbers()
@@ -24,7 +28,7 @@ class Puzzle:
        
         print(grid)
         return grid
-    
+    #Crea una matriz ordenada para determinar si gana
     def win_game_order(self):
         grid = []
         number = 1
@@ -37,17 +41,20 @@ class Puzzle:
        
         return grid
     
+    #Crea numeros aleatorios
     def create_random_numbers(self):
         randomlist=[]
         randomlist = rdm.sample(range(1,(GAME_SIZE*GAME_SIZE)), (GAME_SIZE*GAME_SIZE)-1)
         return randomlist
   
+    #Se encarga de inicializar la partida y dibujar el primer grid
     def new(self):
         self.all_sprites = pg.sprite.Group()
         self.tiles_grid = self.create_game()
         self.tiles_grid_completed = self.win_game_order()
         self.draw_tiles()
 
+    #corre el hilo del juego
     def run(self):
         self.playing = True
         while self.playing:
@@ -56,13 +63,13 @@ class Puzzle:
             self.update()
             self.draw()
             if(self.tiles_grid==self.tiles_grid_completed):
-                print("Win")
                 self.playing=False
       
-
+    #Actualiza el grid
     def update(self):
        self.all_sprites.update()
-       
+    
+    #dibuja el grid
     def draw_grid(self):
         for row in range(-1, GAME_SIZE*TILESIZE,TILESIZE):
             pg.draw.line(self.screen, GRID,(row,0),(row,GAME_SIZE*TILESIZE))
@@ -70,6 +77,7 @@ class Puzzle:
         for col in range(-1, GAME_SIZE*TILESIZE,TILESIZE):
               pg.draw.line(self.screen, GRID,(0,col),(GAME_SIZE*TILESIZE,col))
 
+    #dibuja los numeros y celdas
     def draw_tiles(self):
         self.tiles = []
         for row, x in enumerate(self.tiles_grid):
@@ -80,6 +88,7 @@ class Puzzle:
                 else:
                     self.tiles[row].append(Tile(self,col,row,"empty"))
  
+    #dibuja la pantalla incial
     def draw(self):
         self.screen.fill(BG)
         self.all_sprites.draw(self.screen)
@@ -87,6 +96,23 @@ class Puzzle:
        
         pg.display.flip()
 
+    def draw2(self):
+        pg.display.set_caption(TITLE)     
+        font = pg.font.Font('freesansbold.ttf', 50)
+ 
+        # create a text surface object,
+        # on which text is drawn on it.
+        text = font.render('¡¡GANASTE¡¡', True, white)
+ 
+        # create a rectangular object for the
+        # text surface object
+        textRect = text.get_rect()
+        textRect.center = (WIDTH / 2, HEIGHT / 2)
+        self.screen.fill(BG)
+        self.screen.blit(text, textRect)
+        pg.display.flip()
+        
+    #captura el vevento
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -112,9 +138,6 @@ class Puzzle:
                                  self.tiles_grid[row][col],self.tiles_grid[row+1][col] = self.tiles_grid[row+1][col] ,self.tiles_grid[row][col]
                                  
                             self.draw_tiles()
-                
-
-
 
 puzzle = Puzzle()
 # print(puzzle.create_random_numbers())
@@ -122,4 +145,6 @@ puzzle = Puzzle()
 while True:
     puzzle.new()
     puzzle.run()
+    puzzle.draw2()
+    tm.sleep(2)
    
