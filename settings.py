@@ -9,4 +9,4 @@ BG= (40, 55, 71 )
 FPS = 60
 TITLE = "Rompecabezas numerico"
 TILESIZE = 128
-GAME_SIZE=4
+GAME_SIZE=3
