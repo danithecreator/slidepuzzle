@@ -1,24 +1,27 @@
+# Diferentes librerias y utilidades usadas en el proyecto
 import pygame as pg
 import random as rdm
 import time as tm
 from sprite import *
 from settings import *
-white = (255, 255, 255)
-green = (0, 255, 0)
-blue = (0, 0, 128)
+
+
+# Clase principal del programa, es la encargada de dibujar la pantalla, el tablero y las fichas
+# asi como de iniciar el hilo de juego
 class Puzzle:
-    #Inicia la pantalla
+    # Inicia la pantalla
     def __init__(self):
         pg.init()
-        self.screen =pg.display.set_mode((WIDTH,HEIGHT))
+        self.size=GAME_SIZE*TILESIZE
+        self.screen =pg.display.set_mode(( self.size, self.size))
         pg.display.set_caption(TITLE) 
         self.clock = pg.time.Clock()
 
-    #Crea el grid con los numeros aleatorios
+    # Crea el tablero con los numeros aleatorios
     def create_game(self):
         grid = []
         initialNumbers=self.create_random_numbers()
-        initialNumbers.append(0)
+
         z=0
         for x in range(GAME_SIZE):
             grid.append([])
@@ -26,9 +29,9 @@ class Puzzle:
                 grid[x].append(initialNumbers[z])
                 z+=1
        
-        print(grid)
+        
         return grid
-    #Crea una matriz ordenada para determinar si gana
+    # Crea una matriz ordenada para determinar cuando se gana el juego
     def win_game_order(self):
         grid = []
         number = 1
@@ -41,20 +44,21 @@ class Puzzle:
        
         return grid
     
-    #Crea numeros aleatorios
+    # Crea una lista de numeros aleatorios desde 0
     def create_random_numbers(self):
         randomlist=[]
-        randomlist = rdm.sample(range(1,(GAME_SIZE*GAME_SIZE)), (GAME_SIZE*GAME_SIZE)-1)
+        randomlist = rdm.sample(range(0,(GAME_SIZE*GAME_SIZE)), (GAME_SIZE*GAME_SIZE))
+     
         return randomlist
   
-    #Se encarga de inicializar la partida y dibujar el primer grid
+    # Se encarga de inicializar la partida y dibujar el primer tablero
     def new(self):
         self.all_sprites = pg.sprite.Group()
         self.tiles_grid = self.create_game()
         self.tiles_grid_completed = self.win_game_order()
         self.draw_tiles()
 
-    #corre el hilo del juego
+    # Corre el hilo del juego, cuando el jugador organiza todas las fichas finaliza la partida
     def run(self):
         self.playing = True
         while self.playing:
@@ -65,22 +69,24 @@ class Puzzle:
             if(self.tiles_grid==self.tiles_grid_completed):
                 self.playing=False
       
-    #Actualiza el grid
+    # Actualiza el tablero de juego
     def update(self):
        self.all_sprites.update()
     
-    #dibuja el grid
+    # Dibuja el grid
     def draw_grid(self):
         for row in range(-1, GAME_SIZE*TILESIZE,TILESIZE):
-            pg.draw.line(self.screen, GRID,(row,0),(row,GAME_SIZE*TILESIZE))
+            pg.draw.line(self.screen, WHITE,(row,0),(row,GAME_SIZE*TILESIZE))
 
         for col in range(-1, GAME_SIZE*TILESIZE,TILESIZE):
-              pg.draw.line(self.screen, GRID,(0,col),(GAME_SIZE*TILESIZE,col))
+              pg.draw.line(self.screen, WHITE,(0,col),(GAME_SIZE*TILESIZE,col))
 
-    #dibuja los numeros y celdas
+    # Dibuja los numeros y celdas
     def draw_tiles(self):
+        
         self.tiles = []
         for row, x in enumerate(self.tiles_grid):
+            print(row)
             self.tiles.append([])
             for col, tile in enumerate(x):
                 if tile !=0:
@@ -88,40 +94,39 @@ class Puzzle:
                 else:
                     self.tiles[row].append(Tile(self,col,row,"empty"))
  
-    #dibuja la pantalla incial
+    # Dibuja la pantalla incial
     def draw(self):
         self.screen.fill(BG)
         self.all_sprites.draw(self.screen)
         self.draw_grid()
        
         pg.display.flip()
-
-    def draw2(self):
+        
+    # Dibuja el mensaje de ganaste en la pantalla
+    def draw_winnig_screen(self):
         pg.display.set_caption(TITLE)     
-        font = pg.font.Font('freesansbold.ttf', 50)
- 
-        # create a text surface object,
-        # on which text is drawn on it.
-        text = font.render('¡¡GANASTE¡¡', True, white)
- 
-        # create a rectangular object for the
-        # text surface object
+        font = pg.font.Font('freesansbold.ttf', 50)  
+        text = font.render('¡¡GANASTE¡¡', True, WHITE)
         textRect = text.get_rect()
-        textRect.center = (WIDTH / 2, HEIGHT / 2)
+        textRect.center = ( self.size / 2,  self.size / 2)
         self.screen.fill(BG)
         self.screen.blit(text, textRect)
         pg.display.flip()
         
-    #captura el vevento
+    # Captura los eventos
     def events(self):
         for event in pg.event.get():
+            # Captura el evento de cerrar la ventana
             if event.type == pg.QUIT:
                 pg.quit()
                 quit(0)
-                
+            
+            # Captura el evento de dar click sobre una ficha
             if event.type == pg.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pg.mouse.get_pos()
                 
+                # Valida si la ficha se puede mover en la direccion donde esta el espacio en blanco, si se puede traslada la ficha
+                # a ese espacio
                 for row, tiles in enumerate(self.tiles):
                     for col,tile in enumerate(tiles):
                         if tile.click(mouse_x,mouse_y):
@@ -139,12 +144,13 @@ class Puzzle:
                                  
                             self.draw_tiles()
 
+# Instancia de la clase principal
 puzzle = Puzzle()
-# print(puzzle.create_random_numbers())
 
+# Inicio del ciclo del juego
 while True:
     puzzle.new()
     puzzle.run()
-    puzzle.draw2()
+    puzzle.draw_winnig_screen()
     tm.sleep(2)
    
